@@ -12,7 +12,8 @@ import { MobileNav } from "./mobile-nav";
 
 const links = [
   { href: "/hackathons", label: "Hackathons" },
-  { href: "/features", label: "Features" },
+  { href: "/enrolled", label: "Enrolled" },
+  { href: "/alerts", label: "Alerts" },
   { href: "/about", label: "About" },
 ];
 
