@@ -3,6 +3,8 @@ const connectDB = require("./src/config/db");
 const env = require("./src/config/env");
 const logger = require("./src/utils/logger");
 
+require("./src/services/telegramBot.service");
+
 async function startServer() {
   try {
     await connectDB();

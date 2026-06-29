@@ -11,7 +11,16 @@ async function updateProfile(user, profile) {
   return user.profile;
 }
 
+async function connectTelegram(user, telegramChatId) {
+  user.telegramChatId = telegramChatId;
+
+  await user.save();
+
+  return user;
+}
+
 module.exports = {
   getProfile,
   updateProfile,
+  connectTelegram,
 };

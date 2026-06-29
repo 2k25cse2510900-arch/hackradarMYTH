@@ -12,7 +12,16 @@ const updateProfile = asyncHandler(async (req, res) => {
   res.status(200).json(new ApiResponse(200, { profile }, "Profile updated"));
 });
 
+const connectTelegram = asyncHandler(async (req, res) => {
+  const user = await userService.connectTelegram(req.user, req.body.telegramChatId);
+
+  res
+    .status(200)
+    .json(new ApiResponse(200, { user }, "Telegram connected successfully"));
+});
+
 module.exports = {
   getProfile,
   updateProfile,
+  connectTelegram,
 };

@@ -29,6 +29,7 @@ const userSchema = new mongoose.Schema(
     passwordHash: { type: String, select: false },
     googleId: { type: String, unique: true, sparse: true },
     authProvider: { type: String, enum: ["email", "google"], default: "email" },
+    telegramChatId: { type: String, default: null },
     profile: { type: profileSchema, default: () => ({}) },
   },
   { timestamps: true, collection: "Users" }

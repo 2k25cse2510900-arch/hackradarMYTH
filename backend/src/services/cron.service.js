@@ -1,7 +1,10 @@
+const { buildReminderEmail } = require("../templates/email.template");
+const { buildTelegramReminder } = require("../templates/telegram.template");
 const cron = require("node-cron");
 const Alert = require("../models/Alert");
 const User = require("../models/User");
 const { sendEmail } = require("./email.service");
+const { sendTelegramMessage } = require("./telegram.service");
 
 cron.schedule("* * * * *", async () => {
   console.log("⏰ Checking alerts...");
@@ -19,33 +22,48 @@ cron.schedule("* * * * *", async () => {
 
       if (!user || !user.email) continue;
 
-      await sendEmail({
-        
-        to: user.email,
-        subject: `⏰ Reminder: ${alert.title}`,
-        html: `
-          <h2>Hello ${user.firstName || "Hacker"} 👋</h2>
+      // ==========================
+      // Send Email
+      // ==========================
+      try {
+       await sendEmail({
+  to: user.email,
+  subject: `⏰ Reminder: ${alert.title}`,
+  html: buildReminderEmail({
+    firstName: user.firstName,
+    title: alert.title,
+  }),
+});
 
-          <p>Your hackathon reminder is here.</p>
+        console.log(`📧 Email sent to ${user.email}`);
+      } catch (err) {
+        console.error("❌ Email Error:", err.message);
+      }
 
-          <h3>${alert.title}</h3>
+      // ==========================
+// Send Telegram
+// ==========================
+try {
+  await sendTelegramMessage(
+    user.telegramChatId,
+    buildTelegramReminder({
+      firstName: user.firstName,
+      title: alert.title,
+    })
+  );
 
-          <p>The registration deadline is approaching.</p>
+  console.log("📲 Telegram message sent");
+} catch (err) {
+  console.error("❌ Telegram Error:", err.message);
+}
 
-          <p>Good luck and happy hacking! 🚀</p>
+      // ==========================
+      // Disable Alert
+      // ==========================
+      alert.enabled = false;
+      await alert.save();
 
-          <hr>
-
-          <p>HackRadar Team</p>
-        `,
-      });
-
-      // Disable alert after sending
-    alert.enabled = false;
-    await alert.save();
-
-    console.log(`✅ Reminder sent to ${user.email}`);
-    console.log(`🚫 Alert disabled: ${alert.title}`);
+      console.log(`🚫 Alert disabled: ${alert.title}`);
     }
   } catch (err) {
     console.error("❌ Cron Error:", err.message);
