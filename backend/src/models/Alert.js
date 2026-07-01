@@ -8,6 +8,7 @@ const alertSchema = new mongoose.Schema(
     channels: { type: [String], default: [] },
     frequency: { type: String, default: "daily", trim: true },
     enabled: { type: Boolean, default: true },
+    lastTriggeredAt: {type: Date,default: null,},
     alertTime: { type: Date, required: true, index: true },
     settings: { type: mongoose.Schema.Types.Mixed, default: {} },
   },

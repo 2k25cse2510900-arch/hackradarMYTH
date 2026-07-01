@@ -20,47 +20,60 @@ cron.schedule("* * * * *", async () => {
     for (const alert of alerts) {
       const user = await User.findById(alert.user);
 
-      if (!user || !user.email) continue;
+      if (!user) continue;
+
+const canSendEmail = !!user.email;
+
+const canSendTelegram =
+  user.telegramVerified &&
+  user.telegramChatId;
 
       // ==========================
       // Send Email
       // ==========================
-      try {
-       await sendEmail({
-  to: user.email,
-  subject: `⏰ Reminder: ${alert.title}`,
-  html: buildReminderEmail({
-    firstName: user.firstName,
-    title: alert.title,
-  }),
-});
 
-        console.log(`📧 Email sent to ${user.email}`);
-      } catch (err) {
-        console.error("❌ Email Error:", err.message);
-      }
+      if (canSendEmail && alert.channels.includes("email")) {
+  try {
+    await sendEmail({
+      to: user.email,
+      subject: `⏰ Reminder: ${alert.title}`,
+      html: buildReminderEmail({
+        firstName: user.firstName,
+        title: alert.title,
+      }),
+    });
+
+    console.log("📧 Email sent");
+  } catch (err) {
+    console.error(err.message);
+  }
+}
 
       // ==========================
 // Send Telegram
 // ==========================
-try {
-  await sendTelegramMessage(
-    user.telegramChatId,
-    buildTelegramReminder({
-      firstName: user.firstName,
-      title: alert.title,
-    })
-  );
 
-  console.log("📲 Telegram message sent");
-} catch (err) {
-  console.error("❌ Telegram Error:", err.message);
+if (canSendTelegram && alert.channels.includes("telegram")) {
+  try {
+    await sendTelegramMessage(
+      user.telegramChatId,
+      buildTelegramReminder({
+        firstName: user.firstName,
+        title: alert.title,
+      })
+    );
+
+    console.log("📲 Telegram sent");
+  } catch (err) {
+    console.log(err.message);
+  }
 }
 
       // ==========================
       // Disable Alert
       // ==========================
       alert.enabled = false;
+      alert.lastTriggeredAt = new Date();
       await alert.save();
 
       console.log(`🚫 Alert disabled: ${alert.title}`);

@@ -29,10 +29,18 @@ alertTime = new Date(deadline.getTime() - reminderHours * 60 * 60 * 1000);
 
   // Save alert
   const alert = await Alert.create({
-    ...payload,
-    user: userId,
-    alertTime,
-  });
+  user: userId,
+  hackathonId: payload.hackathonId,
+  title: payload.title,
+
+  channels: payload.channels || ["email", "telegram"],
+
+  frequency: payload.frequency || "once",
+
+  enabled: true,
+
+  alertTime,
+});
 
   // Get logged-in user
   const user = await User.findById(userId);
