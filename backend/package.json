@@ -5,6 +5,7 @@
   "description": "Express and MongoDB backend for HackRadar MVP.",
   "main": "server.js",
   "scripts": {
+    "build": "node scripts/check-syntax.js",
     "dev": "nodemon server.js",
     "start": "node server.js"
   },
